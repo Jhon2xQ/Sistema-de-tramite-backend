@@ -1,7 +1,6 @@
 import { UserRepository } from 'src/repositories/user.repository';
 import { PrismaConexion } from './prisma-conexion/prisma.conexion';
-import { User } from 'src/models/user.model';
-import { CreateUser, UpdateUser } from 'src/dtos/user.dto';
+import { User } from 'src/entities/user.entity';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -9,27 +8,48 @@ export class IUserRepository implements UserRepository {
   constructor(private readonly prisma: PrismaConexion) {}
 
   async getById(id: number): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    const foundUser = await this.prisma.user.findUnique({
       where: { id },
     });
+    return foundUser ? User.fromPrisma(foundUser) : null;
   }
 
   async getByUsername(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
+    const foundUser = await this.prisma.user.findUnique({
       where: { username },
     });
+    return foundUser ? User.fromPrisma(foundUser) : null;
   }
 
-  async create(user: CreateUser): Promise<User> {
-    return this.prisma.user.create({
-      data: user,
+  async existByUsername(username: string): Promise<boolean> {
+    const user = await this.prisma.user.findUnique({
+      where: { username },
     });
+    return user !== null;
   }
 
-  async update(id: number, user: UpdateUser): Promise<User> {
-    return this.prisma.user.update({
+  async create(user: User): Promise<User> {
+    const foundUser = await this.prisma.user.create({
+      data: {
+        username: user.getUsername(),
+        password: user.getPassword(),
+        address: user.getAddress(),
+        active: user.getActive(),
+      },
+    });
+    return User.fromPrisma(foundUser);
+  }
+
+  async update(id: number, user: User): Promise<User> {
+    const foundUser = await this.prisma.user.update({
       where: { id },
-      data: user,
+      data: {
+        username: user.getUsername(),
+        password: user.getPassword(),
+        address: user.getAddress(),
+        active: user.getActive(),
+      },
     });
+    return User.fromPrisma(foundUser);
   }
 }
