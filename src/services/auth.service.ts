@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { NotFoundUserException } from 'src/common/exceptions/user.exception';
-import { CreateUserDto, PublicUserDto } from 'src/dtos/user.dto';
+import { LoginDto, PublicUserDto, RegisterDto } from 'src/dtos/auth.dto';
 import { User } from 'src/entities/user.entity';
 import { IUserRepository } from 'src/persistance/user.repository.impl';
 
@@ -8,13 +8,16 @@ import { IUserRepository } from 'src/persistance/user.repository.impl';
 export class AuthService {
   constructor(private readonly userRepository: IUserRepository) {}
 
-  async getByUsername(username: string): Promise<PublicUserDto> {
-    const foundUser = await this.userRepository.getByUsername(username);
-    if (!foundUser) throw new NotFoundUserException('No se encontro el usuario');
+  async login(dto: LoginDto): Promise<PublicUserDto> {
+    const foundUser = await this.userRepository.getByUsername(dto.username);
+    if (!foundUser) throw new NotFoundUserException('Usuario incorrecto');
+    if (!(await foundUser.isMatchPassword(dto.password))) {
+      throw new NotFoundUserException('Cotraseña incorrecta');
+    }
     return new PublicUserDto(foundUser);
   }
 
-  async create(dto: CreateUserDto): Promise<PublicUserDto> {
+  async register(dto: RegisterDto): Promise<PublicUserDto> {
     if (await this.userRepository.existByUsername(dto.username)) {
       throw new NotFoundUserException('usuario ya existe');
     }

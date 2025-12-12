@@ -1,7 +1,7 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { User } from 'src/entities/user.entity';
 
-export class CreateUserDto {
+export class LoginDto {
   @IsString()
   @IsNotEmpty()
   username: string;
@@ -11,18 +11,14 @@ export class CreateUserDto {
   password: string;
 }
 
-export class UpdateUserDto {
+export class RegisterDto {
   @IsString()
-  @IsOptional()
-  username?: string;
+  @IsNotEmpty()
+  username: string;
 
   @IsString()
-  @IsOptional()
-  password?: string;
-
-  @IsString()
-  @IsOptional()
-  address?: string;
+  @IsNotEmpty()
+  password: string;
 }
 
 export class PublicUserDto {
