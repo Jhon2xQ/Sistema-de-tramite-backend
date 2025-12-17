@@ -21,12 +21,12 @@ export class RegisterDto {
   password: string;
 }
 
-export class PublicUserDto {
+export interface loginResponse {
+  accessToken: string;
+  username: string;
+}
+
+export interface registerResponse {
   username: string;
   address: string;
-
-  constructor(user: User) {
-    this.username = user.getUsername();
-    this.address = user.getAddress();
-  }
 }

@@ -2,14 +2,12 @@ import { User } from 'src/entities/user.entity';
 
 export interface AccessPayload {
   sub: number;
-  type: string;
   address: string;
   jti: string;
 }
 
 export interface RefreshPayload {
   sub: number;
-  type: string;
   jti: string;
 }
 
@@ -27,7 +25,6 @@ export class UserPayload {
   getAccessPayload(): AccessPayload {
     return {
       sub: this._sub,
-      type: 'accessToken',
       address: this._address,
       jti: this._jti,
     };
@@ -36,15 +33,12 @@ export class UserPayload {
   getRefreshpayload(): RefreshPayload {
     return {
       sub: this._sub,
-      type: 'refreshToken',
       jti: this._jti,
     };
   }
 }
 
-export class TokensPair {
-  constructor(
-    public readonly accessToken: string,
-    public readonly refreshToken: string,
-  ) {}
+export interface TokensPair {
+  accessToken: string;
+  refreshToken: string;
 }
