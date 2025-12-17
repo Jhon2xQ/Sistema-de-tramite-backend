@@ -21,12 +21,12 @@ export class RegisterDto {
   password: string;
 }
 
-export interface loginResponse {
+export interface LoginResponse {
   accessToken: string;
   username: string;
 }
 
-export interface registerResponse {
+export interface RegisterResponse {
   username: string;
   address: string;
 }
