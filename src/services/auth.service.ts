@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { Response } from 'express';
 import { REFRESH_TOKEN } from 'src/common/config/env.config';
-import { NotFoundUserException } from 'src/common/exceptions/user.exception';
+import { AuthException } from 'src/common/exceptions/auth.exception';
 import { CookieUtil } from 'src/common/utils/cookie.util';
 import { JwtUtil } from 'src/common/utils/jwt.util';
-import { LoginDto, loginResponse, RegisterDto, registerResponse } from 'src/dtos/auth.dto';
+import { LoginDto, LoginResponse, RegisterDto, RegisterResponse } from 'src/dtos/auth.dto';
 import { UserPayload } from 'src/dtos/jwt.dto';
 import { User } from 'src/entities/user.entity';
 import { IUserRepository } from 'src/persistance/user.repository.impl';
@@ -17,20 +17,20 @@ export class AuthService {
     private readonly cookieUtil: CookieUtil,
   ) {}
 
-  async login(res: Response, dto: LoginDto): Promise<loginResponse> {
+  async login(res: Response, dto: LoginDto): Promise<LoginResponse> {
     const foundUser = await this.userRepository.getByUsername(dto.username);
-    if (!foundUser) throw new NotFoundUserException('Usuario incorrecto');
+    if (!foundUser) throw AuthException.invalidCredentials();
     if (!(await foundUser.isMatchPassword(dto.password))) {
-      throw new NotFoundUserException('Cotraseña incorrecta');
+      throw AuthException.invalidPassword();
     }
     const tokens = await this.jwtUtil.generateTokens(new UserPayload(foundUser));
     this.cookieUtil.generateCookie(res, REFRESH_TOKEN, tokens.refreshToken);
     return { accessToken: tokens.accessToken, username: foundUser.getUsername() };
   }
 
-  async register(dto: RegisterDto): Promise<registerResponse> {
+  async register(dto: RegisterDto): Promise<RegisterResponse> {
     const existUser = await this.userRepository.existByUsername(dto.username);
-    if (existUser) throw new NotFoundUserException('usuario ya existe');
+    if (existUser) throw AuthException.userAlreadyExists();
     const user = new User();
     user.setUsername(dto.username);
     await user.setPassword(dto.password);
