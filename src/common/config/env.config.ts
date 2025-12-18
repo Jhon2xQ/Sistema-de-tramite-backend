@@ -9,5 +9,5 @@ export const REFRESH_JWT_SECRET = Bun.env.REFRESH_JWT_SECRET ?? 'tu-super-secret
 export const COOKIE_HTTP_ONLY = Boolean(Bun.env.COOKIE_HTTP_ONLY ?? true);
 export const COOKIE_SECURE = Boolean(Bun.env.COOKIE_SECURE ?? false);
 export const COOKIE_SAME_SITE = Bun.env.COOKIE_SAME_SITE ?? 'none';
-export const COOKIE_PATH = Bun.env.COOKIE_PATH ?? '/auth/refresh';
+export const COOKIE_PATH = Bun.env.COOKIE_PATH ?? '/auth/refresh-token';
 export const COOKIE_MAX_AGE = Number(Bun.env.COOKIE_MAX_AGE ?? '18000000');
