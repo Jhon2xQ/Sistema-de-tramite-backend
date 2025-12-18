@@ -1,5 +1,4 @@
 import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
-import { Response } from 'express';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
 import { RefreshJwtAuthGuard } from 'src/common/guards/refreshJwt.guard';
@@ -29,6 +28,13 @@ export class AuthController {
   @UseGuards(RefreshJwtAuthGuard)
   @Post('refresh-token')
   async refreshToken(@CurrentUser() user, @Res({ passthrough: true }) res) {
-    return user;
+    const foundRefresh = await this.authService.refreshToken(user.sub, res);
+    return ApiResponse.success('Token refrescado con exito', foundRefresh);
+  }
+
+  @Post('logout')
+  logout(@Res({ passthrough: true }) res) {
+    this.authService.logout(res);
+    return ApiResponse.success('logout exitoso');
   }
 }
