@@ -1,6 +1,8 @@
-import { Body, Controller, Post, Res } from '@nestjs/common';
+import { Body, Controller, Post, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { Public } from 'src/common/decorators/public.decorator';
+import { RefreshJwtAuthGuard } from 'src/common/guards/refreshJwt.guard';
 import { LoginDto, RegisterDto } from 'src/dtos/auth.dto';
 import { ApiResponse } from 'src/dtos/response.dto';
 import { AuthService } from 'src/services/auth.service';
@@ -19,6 +21,14 @@ export class AuthController {
   @Public()
   @Post('register')
   async register(@Body() registerDto: RegisterDto) {
-    return this.authService.register(registerDto);
+    const foundRegister = await this.authService.register(registerDto);
+    return ApiResponse.success('Registro realizado con exito', foundRegister);
+  }
+
+  @Public()
+  @UseGuards(RefreshJwtAuthGuard)
+  @Post('refresh-token')
+  async refreshToken(@CurrentUser() user, @Res({ passthrough: true }) res) {
+    return user;
   }
 }
