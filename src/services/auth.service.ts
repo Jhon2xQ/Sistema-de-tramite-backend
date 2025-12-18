@@ -20,6 +20,7 @@ export class AuthService {
   async login(res: Response, dto: LoginDto): Promise<LoginResponse> {
     const foundUser = await this.userRepository.getByUsername(dto.username);
     if (!foundUser) throw AuthException.invalidCredentials();
+    if (!foundUser.getActive()) throw AuthException.userIsDesactivate();
     if (!(await foundUser.isMatchPassword(dto.password))) {
       throw AuthException.invalidPassword();
     }
@@ -37,5 +38,17 @@ export class AuthService {
     user.setAddress('mywalletaddress');
     const foundUser = await this.userRepository.create(user);
     return { username: foundUser.getUsername(), address: foundUser.getAddress() };
+  }
+
+  async refreshToken(id: number, res: Response): Promise<LoginResponse> {
+    const foundUser = await this.userRepository.getById(id);
+    if (!foundUser!.getActive()) throw AuthException.userIsDesactivate();
+    const tokens = await this.jwtUtil.generateTokens(new UserPayload(foundUser!));
+    this.cookieUtil.generateCookie(res, REFRESH_TOKEN, tokens.refreshToken);
+    return { accessToken: tokens.accessToken, username: foundUser?.getUsername()! };
+  }
+
+  async logout(res: Response): Promise<void> {
+    this.cookieUtil.clearCookie(res, REFRESH_TOKEN);
   }
 }
