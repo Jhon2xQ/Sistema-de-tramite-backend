@@ -7,9 +7,13 @@ import { JwtModule } from '@nestjs/jwt';
 import { CookieUtil } from 'src/common/utils/cookie.util';
 
 @Module({
-  imports: [PersistanceModule, JwtModule.register({})],
+  imports: [
+    PersistanceModule,
+    JwtModule.register({
+      global: true,
+    }),
+  ],
   controllers: [AuthController],
   providers: [AuthService, JwtUtil, CookieUtil],
-  exports: [JwtUtil],
 })
 export class AuthModule {}
